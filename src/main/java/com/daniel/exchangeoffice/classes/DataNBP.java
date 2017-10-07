@@ -15,9 +15,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 
 public class DataNBP {
@@ -28,8 +26,6 @@ public class DataNBP {
     private static List<String> rateGBP = new ArrayList<>();
 
 
-    private String name;
-    private String exchangeRate;
 
 
     public DataNBP() {

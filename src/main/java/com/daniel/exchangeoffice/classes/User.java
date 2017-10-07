@@ -77,4 +77,18 @@ public class User {
     public void setUsd(Long usd) {
         this.usd = usd;
     }
+
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", username='" + username + '\'' +
+                ", password='" + password + '\'' +
+                ", pln=" + pln +
+                ", gbp=" + gbp +
+                ", eur=" + eur +
+                ", usd=" + usd +
+                '}';
+    }
 }

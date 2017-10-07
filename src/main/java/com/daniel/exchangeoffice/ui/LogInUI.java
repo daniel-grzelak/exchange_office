@@ -12,6 +12,7 @@ import com.vaadin.navigator.Navigator;
 import com.vaadin.navigator.View;
 import com.vaadin.server.Page;
 import com.vaadin.server.VaadinRequest;
+import com.vaadin.server.VaadinSession;
 import com.vaadin.spring.annotation.SpringUI;
 import com.vaadin.ui.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -79,6 +80,7 @@ public class LogInUI extends UI implements View {
                     Navigator navigator = new Navigator(this, this);
                     navigator.addView("", new MyUI());
                     getUI().getNavigator().navigateTo("");
+                    getUI().getSession().setAttribute("User", uFromDatabase);
 
 
                 } else {

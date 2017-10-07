@@ -1,14 +1,16 @@
 package com.daniel.exchangeoffice.ui;
 
 
+import com.daniel.exchangeoffice.DAO.UserDAO;
 import com.daniel.exchangeoffice.classes.DataNBP;
 import com.daniel.exchangeoffice.classes.GridCurrencyModel;
+import com.daniel.exchangeoffice.classes.User;
 import com.vaadin.data.HasValue;
-import com.vaadin.data.provider.DataProvider;
 import com.vaadin.navigator.View;
+import com.vaadin.server.VaadinSession;
 import com.vaadin.ui.*;
+import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.xml.soap.Text;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -17,8 +19,11 @@ import java.util.stream.Collectors;
 
 public class MyUI extends VerticalLayout implements View {
 
+    @Autowired
+    private UserDAO userDAO;
     private static Grid<GridCurrencyModel> grid = new Grid<>();
     private static HorizontalLayout buttonsRow = new HorizontalLayout();
+
 
     public MyUI() {
         setSizeFull();
@@ -64,21 +69,35 @@ public class MyUI extends VerticalLayout implements View {
         textField1.setEnabled(false);
         Button doIt = new Button("Do it!");
 
-        nativeSelect.addValueChangeListener(new HasValue.ValueChangeListener() {
-            @Override
-            public void valueChange(HasValue.ValueChangeEvent valueChangeEvent) {
+        nativeSelect.addValueChangeListener((HasValue.ValueChangeListener) valueChangeEvent -> nativeSelect1.setItems(currencies.stream().filter(e -> !e.equals(valueChangeEvent.getValue())).collect(Collectors.toList())));
+        nativeSelect1.addValueChangeListener((HasValue.ValueChangeListener) valueChangeEvent -> nativeSelect.setItems(currencies.stream().filter(e -> !e.equals(valueChangeEvent.getValue())).collect(Collectors.toList())));
 
-                nativeSelect1.setItems(currencies.stream().filter(e -> !e.equals(valueChangeEvent.getValue())).collect(Collectors.toList()));
+
+        doIt.addClickListener(new Button.ClickListener() {
+            @Override
+            public void buttonClick(Button.ClickEvent clickEvent) {
+                User user = (User) getUI().getSession().getAttribute("User");
+                if (radioButtonGroup.getSelectedItem().get().equals("Buy")) {
+
+                    if (user.getPln() >= Integer.parseInt(textField.getValue())) {
+
+                        if (nativeSelect.getSelectedItem().get().equals(0)) {
+                            System.out.println(Long.parseLong(textField.getValue()) * Long.parseLong(DataNBP.getRateGBP().get(DataNBP.getRateGBP().size() - 1)));
+                        } else if (nativeSelect.getSelectedItem().equals("USD")) {
+
+                        } else {
+
+                        }
+
+                    }
+                } else if (radioButtonGroup.getSelectedItem().get().equals("Sell")) {
+
+                } else {
+
+                }
+
             }
         });
-        nativeSelect1.addValueChangeListener(new HasValue.ValueChangeListener() {
-            @Override
-            public void valueChange(HasValue.ValueChangeEvent valueChangeEvent) {
-
-                nativeSelect.setItems(currencies.stream().filter(e -> !e.equals(valueChangeEvent.getValue())).collect(Collectors.toList()));
-            }
-        });
-
 
         buttonsRow.addComponents(radioButtonGroup, nativeSelect, textField, label, nativeSelect1, textField1, doIt);
 
