@@ -8,9 +8,12 @@ import com.daniel.exchangeoffice.classes.User;
 import com.vaadin.data.HasValue;
 import com.vaadin.navigator.View;
 import com.vaadin.server.VaadinSession;
+import com.vaadin.shared.ui.ValueChangeMode;
 import com.vaadin.ui.*;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import javax.transaction.Transactional;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -41,9 +44,9 @@ public class MyUI extends VerticalLayout implements View {
 
     private void gridMaker() {
         List<GridCurrencyModel> list = Arrays.asList(
-                new GridCurrencyModel("GBP:", DataNBP.getRateGBP().get(DataNBP.getRateGBP().size() - 1)),
-                new GridCurrencyModel("USD:", DataNBP.getRateUSD().get(DataNBP.getRateUSD().size() - 1)),
-                new GridCurrencyModel("EUR:", DataNBP.getRateUSD().get(DataNBP.getRateEUR().size() - 1)));
+                new GridCurrencyModel("GBP:", DataNBP.getRateGBP().get(DataNBP.getRateGBP().size() - 1).toString()),
+                new GridCurrencyModel("USD:", DataNBP.getRateUSD().get(DataNBP.getRateUSD().size() - 1).toString()),
+                new GridCurrencyModel("EUR:", DataNBP.getRateUSD().get(DataNBP.getRateEUR().size() - 1).toString()));
         grid.setItems(list);
         grid.addColumn(GridCurrencyModel::getName).setCaption("Name: ").setResizable(false);
         grid.addColumn(GridCurrencyModel::getExchangeRate).setCaption("Exchange rate: ").setResizable(false);
@@ -67,6 +70,20 @@ public class MyUI extends VerticalLayout implements View {
         nativeSelect1.setValue("USD");
         TextField textField1 = new TextField();
         textField1.setEnabled(false);
+        textField.setValueChangeMode(ValueChangeMode.EAGER); //czemu tutaj tylko w GBP jest dynamika
+
+        textField.addValueChangeListener((HasValue.ValueChangeListener<String>) valueChangeEvent -> {
+            if (nativeSelect.getSelectedItem().get().equals(0)) {
+                textField1.setValue(new BigDecimal(textField.getValue()).multiply(DataNBP.getRateGBP().get(DataNBP.getRateGBP().size() - 1)).toString());
+            } else if (nativeSelect.getSelectedItem().get().equals(1)) {
+                textField1.setValue(new BigDecimal(textField.getValue()).multiply(DataNBP.getRateEUR().get(DataNBP.getRateEUR().size() - 1)).toString());
+
+            } else if (nativeSelect.getSelectedItem().get().equals(2)) {
+                textField1.setValue(new BigDecimal(textField.getValue()).multiply(DataNBP.getRateUSD().get(DataNBP.getRateUSD().size() - 1)).toString());
+
+            }
+        });
+
         Button doIt = new Button("Do it!");
 
         nativeSelect.addValueChangeListener((HasValue.ValueChangeListener) valueChangeEvent -> nativeSelect1.setItems(currencies.stream().filter(e -> !e.equals(valueChangeEvent.getValue())).collect(Collectors.toList())));
@@ -75,17 +92,21 @@ public class MyUI extends VerticalLayout implements View {
 
         doIt.addClickListener(new Button.ClickListener() {
             @Override
+            @Transactional
             public void buttonClick(Button.ClickEvent clickEvent) {
                 User user = (User) getUI().getSession().getAttribute("User");
                 if (radioButtonGroup.getSelectedItem().get().equals("Buy")) {
 
-                    if (user.getPln() >= Integer.parseInt(textField.getValue())) {
+                    if (user.getPln().compareTo(new BigDecimal(textField.getValue()).multiply(DataNBP.getRateGBP().get(DataNBP.getRateGBP().size() - 1))) == 1 || user.getPln().compareTo(new BigDecimal(textField.getValue()).multiply(DataNBP.getRateGBP().get(DataNBP.getRateGBP().size() - 1))) == 0) {
 
                         if (nativeSelect.getSelectedItem().get().equals(0)) {
-                            System.out.println(Long.parseLong(textField.getValue()) * Long.parseLong(DataNBP.getRateGBP().get(DataNBP.getRateGBP().size() - 1)));
-                        } else if (nativeSelect.getSelectedItem().equals("USD")) {
+                            user.setPln(user.getPln().subtract(new BigDecimal(textField.getValue()).multiply(DataNBP.getRateGBP().get(DataNBP.getRateGBP().size() - 1))));
+                            user.setGbp(user.getGbp().subtract(new BigDecimal(textField.getValue())));
+                            System.out.println(user);
+                            userDAO.save(user);
+                        } else if (nativeSelect.getSelectedItem().get().equals(1)) {
 
-                        } else {
+                        } else if (nativeSelect.getSelectedItem().get().equals(2)) {
 
                         }
 

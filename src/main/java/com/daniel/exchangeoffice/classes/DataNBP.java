@@ -1,5 +1,9 @@
 package com.daniel.exchangeoffice.classes;
 
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -11,72 +15,46 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
+import java.math.BigDecimal;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
 
-
+@Data
+//lomnok nie dziala
 public class DataNBP {
 
 
-    private static List<String> rateUSD = new ArrayList<>();
-    private static List<String> rateEUR = new ArrayList<>();
-    private static List<String> rateGBP = new ArrayList<>();
+    private static List<BigDecimal> rateUSD = new ArrayList<>();
+    private static List<BigDecimal> rateEUR = new ArrayList<>();
+    private static List<BigDecimal> rateGBP = new ArrayList<>();
 
 
-
-
-    public DataNBP() {
-
-    }
-
-
-    public static List<String> getRateUSD() {
+    public static List<BigDecimal> getRateUSD() {
         return rateUSD;
     }
 
-    public static void setRateUSD(List<String> rateUSD) {
+    public static void setRateUSD(List<BigDecimal> rateUSD) {
         DataNBP.rateUSD = rateUSD;
     }
 
-    public static List<String> getRateEUR() {
+    public static List<BigDecimal> getRateEUR() {
         return rateEUR;
     }
 
-    public static void setRateEUR(List<String> rateEUR) {
+    public static void setRateEUR(List<BigDecimal> rateEUR) {
         DataNBP.rateEUR = rateEUR;
     }
 
-    public static List<String> getRateGBP() {
+    public static List<BigDecimal> getRateGBP() {
         return rateGBP;
     }
 
-    public static void setRateGBP(List<String> rateGBP) {
+    public static void setRateGBP(List<BigDecimal> rateGBP) {
         DataNBP.rateGBP = rateGBP;
     }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        DataNBP that = (DataNBP) o;
-
-        if (rateUSD != null ? !rateUSD.equals(that.rateUSD) : that.rateUSD != null) return false;
-        if (rateEUR != null ? !rateEUR.equals(that.rateEUR) : that.rateEUR != null) return false;
-        return rateGBP != null ? rateGBP.equals(that.rateGBP) : that.rateGBP == null;
-    }
-
-    @Override
-    public int hashCode() {
-        int result = rateUSD != null ? rateUSD.hashCode() : 0;
-        result = 31 * result + (rateEUR != null ? rateEUR.hashCode() : 0);
-        result = 31 * result + (rateGBP != null ? rateGBP.hashCode() : 0);
-        return result;
-    }
-
 
     @Scheduled(cron = "0 0 8 * * *")
     public static void checkCurrency() {
@@ -102,7 +80,7 @@ public class DataNBP {
                 JSONArray jsonArray = (JSONArray) jsonObject.get("rates");
                 for (Object o : jsonArray) {
                     JSONObject oo = (JSONObject) o;
-                    DataNBP.getRateGBP().add(oo.get("mid").toString());
+                    DataNBP.getRateGBP().add(new BigDecimal(oo.get("mid").toString()));
                 }
 
 
@@ -117,7 +95,7 @@ public class DataNBP {
                 JSONArray jsonArray = (JSONArray) jsonObject.get("rates");
                 for (Object o : jsonArray) {
                     JSONObject oo = (JSONObject) o;
-                    DataNBP.getRateEUR().add(oo.get("mid").toString());
+                    DataNBP.getRateEUR().add(new BigDecimal(oo.get("mid").toString()));
                 }
 
 
@@ -132,7 +110,7 @@ public class DataNBP {
 
                 for (Object o : jsonArray) {
                     JSONObject oo = (JSONObject) o;
-                    DataNBP.getRateUSD().add(oo.get("mid").toString());
+                    DataNBP.getRateUSD().add(new BigDecimal(oo.get("mid").toString()));
                 }
 
 
