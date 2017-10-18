@@ -23,13 +23,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Data
-//lomnok nie dziala
+//lombok nie dziala
 public class DataNBP {
 
 
-    private static List<BigDecimal> rateUSD = new ArrayList<>();
-    private static List<BigDecimal> rateEUR = new ArrayList<>();
-    private static List<BigDecimal> rateGBP = new ArrayList<>();
+    private static List<BigDecimal> rateUSD = new ArrayList<>(100);
+    private static List<BigDecimal> rateEUR = new ArrayList<>(100);
+    private static List<BigDecimal> rateGBP = new ArrayList<>(100);
 
 
     public static List<BigDecimal> getRateUSD() {
@@ -59,13 +59,13 @@ public class DataNBP {
     @Scheduled(cron = "0 0 8 * * *")
     public static void checkCurrency() {
         try {
-            URL urlGPB = new URL("http://api.nbp.pl/api/exchangerates/rates/a/gbp/");
+            URL urlGPB = new URL("http://api.nbp.pl/api/exchangerates/rates/a/gbp/last/100");
             URLConnection urlConnectionGBP = urlGPB.openConnection();
             BufferedReader bufferedReaderGBP = new BufferedReader(new InputStreamReader(urlConnectionGBP.getInputStream()));
-            URL urlEUR = new URL("http://api.nbp.pl/api/exchangerates/rates/a/eur/");
+            URL urlEUR = new URL("http://api.nbp.pl/api/exchangerates/rates/a/eur/last/100");
             URLConnection urlConnectionEUR = urlEUR.openConnection();
             BufferedReader bufferedReaderEUR = new BufferedReader(new InputStreamReader(urlConnectionEUR.getInputStream()));
-            URL urlUSD = new URL("http://api.nbp.pl/api/exchangerates/rates/a/usd/");
+            URL urlUSD = new URL("http://api.nbp.pl/api/exchangerates/rates/a/usd/last/100");
             URLConnection urlConnectionUSD = urlUSD.openConnection();
             BufferedReader bufferedReaderUSD = new BufferedReader(new InputStreamReader(urlConnectionUSD.getInputStream()));
             JSONParser parser = new JSONParser();
@@ -78,6 +78,7 @@ public class DataNBP {
 
 
                 JSONArray jsonArray = (JSONArray) jsonObject.get("rates");
+                DataNBP.getRateGBP().clear();
                 for (Object o : jsonArray) {
                     JSONObject oo = (JSONObject) o;
                     DataNBP.getRateGBP().add(new BigDecimal(oo.get("mid").toString()));
@@ -93,6 +94,7 @@ public class DataNBP {
 
 
                 JSONArray jsonArray = (JSONArray) jsonObject.get("rates");
+                DataNBP.getRateEUR().clear();
                 for (Object o : jsonArray) {
                     JSONObject oo = (JSONObject) o;
                     DataNBP.getRateEUR().add(new BigDecimal(oo.get("mid").toString()));
@@ -107,7 +109,7 @@ public class DataNBP {
 
 
                 JSONArray jsonArray = (JSONArray) jsonObject.get("rates");
-
+                DataNBP.getRateUSD().clear();
                 for (Object o : jsonArray) {
                     JSONObject oo = (JSONObject) o;
                     DataNBP.getRateUSD().add(new BigDecimal(oo.get("mid").toString()));
@@ -173,5 +175,15 @@ public class DataNBP {
         }
 
         return currencyNames;
+    }
+
+    public static int isCurrencyRising(List<BigDecimal> list) {
+        if (list.get(list.size() - 2).compareTo(list.get(list.size() - 1)) == 1) {
+            return 1;
+        } else if (list.get(list.size() - 2).compareTo(list.get(list.size() - 1)) == 0) {
+            return 0;
+        } else {
+            return -1;
+        }
     }
 }

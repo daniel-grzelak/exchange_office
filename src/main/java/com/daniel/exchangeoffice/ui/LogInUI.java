@@ -2,26 +2,22 @@ package com.daniel.exchangeoffice.ui;
 
 import com.daniel.exchangeoffice.DAO.UserDAO;
 import com.daniel.exchangeoffice.classes.User;
-import com.vaadin.annotations.Theme;
 import com.vaadin.data.Binder;
 import com.vaadin.data.ValidationResult;
 import com.vaadin.data.Validator;
-import com.vaadin.data.ValueContext;
 import com.vaadin.data.validator.StringLengthValidator;
 import com.vaadin.navigator.Navigator;
 import com.vaadin.navigator.View;
 import com.vaadin.server.Page;
 import com.vaadin.server.VaadinRequest;
-import com.vaadin.server.VaadinSession;
 import com.vaadin.spring.annotation.SpringUI;
 import com.vaadin.ui.*;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.List;
+
 
 
 @SpringUI
-
 public class LogInUI extends UI implements View {
     @Autowired
     private UserDAO userDAO;
@@ -78,7 +74,7 @@ public class LogInUI extends UI implements View {
                 if (u.getPassword().equals(uFromDatabase.getPassword())) {
                     getPage().setTitle("Exchange office");
                     Navigator navigator = new Navigator(this, this);
-                    navigator.addView("", new MyUI());
+                    navigator.addView("", new MyUI(userDAO));
                     getUI().getNavigator().navigateTo("");
                     getUI().getSession().setAttribute("User", uFromDatabase);
 
@@ -99,17 +95,14 @@ public class LogInUI extends UI implements View {
 
         binder.forField(tfLogin).withValidator(new StringLengthValidator("Your username must be between 2-12 characters.", 2, 12)).asRequired("You must provide username").bind(User::getUsername, User::setUsername);
 
-        binder.forField(tfPassword).withValidator(new Validator<String>() {
-            @Override
-            public ValidationResult apply(String s, ValueContext valueContext) {
+        binder.forField(tfPassword).withValidator((Validator<String>) (s, valueContext) -> {
 
-                if (s.matches(regex)) {
+            if (s.matches(regex)) {
 
-                    return ValidationResult.ok();
+                return ValidationResult.ok();
 
-                } else {
-                    return ValidationResult.error("Your password must be 8-12 characters and  contain at least one uppercase and one lowercase letter.");
-                }
+            } else {
+                return ValidationResult.error("Your password must be 8-12 characters and  contain at least one uppercase and one lowercase letter.");
             }
         }).asRequired("You must provide password.").bind(User::getPassword, User::setPassword);
 
