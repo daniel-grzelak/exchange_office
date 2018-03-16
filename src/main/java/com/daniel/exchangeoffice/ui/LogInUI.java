@@ -22,7 +22,7 @@ public class LogInUI extends UI implements View {
     @Autowired
     private UserDAO userDAO;
     private Binder<User> binder = new Binder<>();
-    private final static String regex = "^(?=.*[A-Z])(?=.*[0-9])(?=.*[a-z]).{8,12}$";
+    private final String regex = "^(?=.*[A-Z])(?=.*[0-9])(?=.*[a-z]).{8,12}$";
 
 
     @Override

@@ -23,8 +23,8 @@ import java.util.stream.Collectors;
 public class MyUI extends VerticalLayout implements View {
 
     private UserDAO userDAO;
-    private static Grid<GridCurrencyModel> grid = new Grid<>();
-    private static HorizontalLayout buttonsRow = new HorizontalLayout();
+    private Grid<GridCurrencyModel> grid = new Grid<>();
+    private HorizontalLayout buttonsRow = new HorizontalLayout();
 
     public MyUI(UserDAO userDAO) {
         this.userDAO = userDAO;
@@ -122,9 +122,9 @@ public class MyUI extends VerticalLayout implements View {
                 if (radioButtonGroup.getSelectedItem().get().equals("Buy")) {
                     System.out.println("x");
                     if (nativeSelect.getSelectedItem().get().equals("GBP")) {
-                            user.setPln(user.getPln().subtract(new BigDecimal(textField.getValue()).multiply(DataNBP.getRateGBP().get(DataNBP.getRateGBP().size() - 1))));
+                        user.setPln(user.getPln().subtract(new BigDecimal(textField.getValue()).multiply(DataNBP.getRateGBP().get(DataNBP.getRateGBP().size() - 1))));
                         user.setGbp(user.getGbp().add(new BigDecimal(textField.getValue())));
-                            userDAO.save(user);
+                        userDAO.save(user);
                     } else if (nativeSelect.getSelectedItem().get().equals("EUR")) {
                         user.setPln(user.getPln().subtract(new BigDecimal(textField.getValue()).multiply(DataNBP.getRateEUR().get(DataNBP.getRateEUR().size() - 1))));
                         user.setEur(user.getEur().add(new BigDecimal(textField.getValue())));
